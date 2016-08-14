@@ -1,0 +1,41 @@
+r @$t1 = ${$arg1}
+r @$t2 = ${$arg2}
+r @$t3 = @esp
+r @$t4 = @eip
+
+.echo "hello world"
+.logopen C:\ida.log
+
+$$启始地址必须是当前命中的地址
+.if(@$t4 != $t1)
+{
+    .printf "Try run script with right address";       
+}
+.else
+{
+    $$纪录第一次并跳过
+    .printf "eip: 0x%.08x\n",@eip;
+    t
+    $$开始跟踪
+    .while(1)
+    {
+	$$如果再次命中，证明不是最后一次漏洞触发过程
+	.if(@eip == $t1)
+	{
+	    .printf "This is not the last tunnel\n";
+	    .break;
+	}
+        $$如果命中最后结束地址
+        .if(@eip == $t2)
+	{
+    	    .printf "eip: 0x%.08x\n",@eip;
+            .break
+	}
+	.else
+	{
+    	    .printf "eip: 0x%.08x\n",@eip;
+    	    t
+	}
+    }
+}
+.logclose C:\log.txt
